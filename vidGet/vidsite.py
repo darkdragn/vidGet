@@ -1,7 +1,7 @@
 import os
 import re
 
-from embedList import setCompile
+#from embedList import setCompile
 from util import memorize, webpage, initMech
 
 class vidSeries(webpage):

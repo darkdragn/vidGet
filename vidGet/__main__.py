@@ -118,11 +118,12 @@ def loadCookie(fileName):
 
 def main(testIt, cookie=None):
     dirIt = testIt.title
+    total = len(testIt.pages)
     #Test to see if we need to make the folder.
     if not os.path.exists(dirIt) and not results.noDir:
         os.makedirs(dirIt)
-    total = len(testIt.pages)
-    display('Model {name} contains {num} episodes.\n'.format(name=testIt.title, 
+    writeStats(testIt)
+    display('{type} {name} contains {num} episodes.\n'.format(type=testIt.type_, name=testIt.title, 
                                                               num=len(testIt.pages)), 2)
     # Main loop, does the downloading/saving
     if results.noDir:
@@ -135,6 +136,7 @@ def main(testIt, cookie=None):
         downEpisode(page.video, name)
     else:
         pages = testIt.pages[results.startEpi-1:]
+        writeStats(testIt)
         for num, page in enumerate(pages, results.startEpi):
             while True:
                 try:
@@ -164,6 +166,10 @@ def openUrl(req):
         display('File already complete!\n', 1)
         #display(''.join([req.get_full_url(), '\n']), 1)
         return None
+def writeStats(series):
+    with open('/'.join([series.title, '.stats']), 'w') as f:
+        f.write('Link: {}\n'.format(series.name))
+        f.write('Total: {}'.format(len(series.pages)))
 
 if __name__ == '__main__':
     site = [importClass(i) for i in sites.__all__]

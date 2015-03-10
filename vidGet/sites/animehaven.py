@@ -1,6 +1,6 @@
 import re
 import urllib2
-
+from bs4 import BeautifulSoup, SoupStrainer
 try:
     from vidGet.vidsite import vidSeries
     from vidGet.util import memorize, runRepl, unescape, webpage
@@ -9,9 +9,10 @@ except ImportError:
     from util import memorize, runRepl, unescape, webpage
 
 class animehaven(vidSeries):
-    siteTemplate = 'http://animehaven.org/{}'
+    siteTemplate   = 'http://animehaven.org/{}'
     seriesTemplate = siteTemplate
-    tags = ['ah', 'animehaven']
+    tags  = ['ah', 'animehaven']
+    type_ = 'Series'
     matchIt = re.compile('Episodes.*')
     
     def runExtras(self):
@@ -23,10 +24,13 @@ class animehaven(vidSeries):
         intUrlObj = webpage(curUrl, self.br)
         if not lp:
             try:
-                lp = int(intUrlObj.soup.find('nav', class_='pagination').findAll('a')[-1]['href'].split('/')[-1])
+                nav = SoupStrainer('nav')
+                lpSoup = BeautifulSoup(intUrlObj.source, 'html.parser', parse_only=nav)
+                lp = int(lpSoup.find('nav', class_='pagination').findAll('a')[-1]['href'].split('/')[-1])
             except AttributeError:
                 lp = 1
-        pages = [self.page(i.h2.a['href'], self) for i in intUrlObj.soup.findAll('article')]
+        intUrlObj.strainOnly = 'article'
+        pages = [self.page(i.a['href'], self) for i in intUrlObj.soup.findAll('h2')]
         if cp < lp:
             pages.extend(self.listPages(url, cp+1, lp))
         return pages
@@ -36,9 +40,9 @@ class animehaven(vidSeries):
         return self.listPages(self.soup.find('a', text=self.matchIt)['href'])[::-1]
         
     class page(vidSeries.page):
-        
         @property
         @memorize
+        #@profile
         def video(self):
             sites = {'streamcannon': '<source src="(?P<vid>[^"]*)"', 'mp4upload': '\'file\': \'(?P<vid>[^\']*)\'',
                      'docs.google': 'url_encoded_fmt_stream_map"[^"]*"[^h]*(?P<vid>[^\\\\]*)\\\\'}
@@ -55,9 +59,8 @@ class animehaven(vidSeries):
                 for i in embedLinks.findAll('iframe'):
                     try:
                         embed = webpage(i['src'])
-                        for site, pattern in sites.iteritems():
-                            if site in embed.url:
-                                self.vidComp = re.compile(pattern)
+                        self.vidComp = next(re.compile(pattern) for site, pattern in 
+                                            sites.iteritems() if site in embed.url)
                         return unescape(self.runRepl(self.vidComp.search(embed.source)))
                     except:
                         pass
