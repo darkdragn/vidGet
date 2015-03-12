@@ -1,1 +1,5 @@
+#Build Items
+build/
+dist/
+*egg-info
 *.pyc

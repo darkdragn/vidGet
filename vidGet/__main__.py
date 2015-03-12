@@ -134,7 +134,7 @@ def main(testIt, cookie=None):
         nameIt = lambda x: '/'.join([testIt.title, '{}_{:0>2}.mp4'.format(testIt.title, x)])
     if results.epi:
         page = testIt.pages[results.epi-1]
-        name = page.name if hasattr(page, 'name') else nameIt(resulte.epi)
+        name = page.name if hasattr(page, 'name') else nameIt(results.epi)
         downEpisode(page.video, name)
     else:
         pages = testIt.pages[results.startEpi-1:]
