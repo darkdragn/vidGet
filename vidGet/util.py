@@ -31,10 +31,13 @@ def initMech(site, cookies=None):
         cj = cookielib.MozillaCookieJar(filename=cookies)
         cj.load(ignore_expires=True)
         br.set_cookiejar(cj)
-    hold = br.open(site)
-    if 'login' in hold.geturl():
-        br.select_form(nr=0)
-        hold = br.submit()
+    hold = bs4(br.open(site))
+    try:
+        if 'login' in hold.text:
+            br.select_form(nr=0)
+            hold = br.submit()
+    except:
+        pass
     return br
 
 # :SEE: http://wiki.python.org/moin/PythonDecoratorLibrary/#Alternate_memoize_as_nested_functions

@@ -1,5 +1,4 @@
 import re
-import urllib2
 from bs4 import BeautifulSoup, SoupStrainer
 try:
     from vidGet.vidsite import vidSeries
@@ -24,8 +23,7 @@ class animehaven(vidSeries):
         intUrlObj = webpage(curUrl, self.br)
         if not lp:
             try:
-                nav = SoupStrainer('nav')
-                lpSoup = BeautifulSoup(intUrlObj.source, 'html.parser', parse_only=nav)
+                lpSoup = BeautifulSoup(intUrlObj.source, 'html.parser', parse_only=SoupStrainer('nav'))
                 lp = int(lpSoup.find('nav', class_='pagination').findAll('a')[-1]['href'].split('/')[-1])
             except AttributeError:
                 lp = 1
@@ -47,11 +45,16 @@ class animehaven(vidSeries):
             sites = {'streamcannon': '<source src="(?P<vid>[^"]*)"', 'mp4upload': '\'file\': \'(?P<vid>[^\']*)\'',
                      'docs.google': 'url_encoded_fmt_stream_map"[^"]*"[^h]*(?P<vid>[^\\\\]*)\\\\'}
             try:
+                #self.strainOnly = 'a'
+                #self.strainOnly = 'div'
+                hold = self.soup
                 return next(dlink['href'] for qual in ['720', '480']
                             for dlink in self.soup.find('div', class_='download_feed_link').findAll('a')
                             if qual in dlink.text)
+                            #for dlink in self.soup.findAll('a') if qual in dlink.text)
                 
             except:
+                print self.url
                 try:
                     embedLinks = self.soup.find('div', id=re.compile('tabs.*'))
                 except:
@@ -64,3 +67,4 @@ class animehaven(vidSeries):
                         return unescape(self.runRepl(self.vidComp.search(embed.source)))
                     except:
                         pass
+                    
