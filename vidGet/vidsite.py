@@ -8,13 +8,14 @@ class vidSeries(webpage):
     pageComp       = NotImplemented
     siteTemplate   = NotImplemented
     seriesTemplate = NotImplemented
+    type_ = 'Series'
     
-    def __init__(self, seriesName, extras=None, cookie=None):
-        self.extras = extras
-        self.name = seriesName
-        self.br = initMech(self.siteTemplate.format(''), cookie)
+    def __init__(self, series, extras=None, cookie=None):
         if extras:
+            self.extras = extras.split(',')
             self.runExtras()
+        self.name = series
+        self.br = initMech(self.siteTemplate.format(''), cookie)
 
     @property
     @memorize

@@ -18,7 +18,7 @@ class bangbros(vidSeries):
                             class_='vdoThumbHolder')[-1].findAll('span', class_='echThumbLnk-desc')
     
     def runExtras(self):
-        for i in self.extras.split(','):
+        for i in self.extras:
             if 'site' in i:
                 self.pageList = self.siteList
                 self.seriesTemplate = self.siteTemplate

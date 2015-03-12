@@ -11,11 +11,10 @@ class animehaven(vidSeries):
     siteTemplate   = 'http://animehaven.org/{}'
     seriesTemplate = siteTemplate
     tags  = ['ah', 'animehaven']
-    type_ = 'Series'
     matchIt = re.compile('Episodes.*')
     
     def runExtras(self):
-        for i in self.extras.split(','):
+        for i in self.extras:
             if 'dub' in i:
                 self.matchIt = re.compile('Episodes.*Dub.*')
     def listPages(self, url, cp=1, lp=None):
@@ -32,39 +31,37 @@ class animehaven(vidSeries):
         if cp < lp:
             pages.extend(self.listPages(url, cp+1, lp))
         return pages
+    
     @property
     @memorize
     def pages(self):
         return self.listPages(self.soup.find('a', text=self.matchIt)['href'])[::-1]
         
     class page(vidSeries.page):
+        
         @property
         @memorize
-        #@profile
         def video(self):
-            sites = {'streamcannon': '<source src="(?P<vid>[^"]*)"', 'mp4upload': '\'file\': \'(?P<vid>[^\']*)\'',
-                     'docs.google': 'url_encoded_fmt_stream_map"[^"]*"[^h]*(?P<vid>[^\\\\]*)\\\\'}
-            try:
-                #self.strainOnly = 'a'
-                #self.strainOnly = 'div'
+                self.strainOnly = 'a'
                 hold = self.soup
                 return next(dlink['href'] for qual in ['720', '480']
-                            for dlink in self.soup.find('div', class_='download_feed_link').findAll('a')
-                            if qual in dlink.text)
-                            #for dlink in self.soup.findAll('a') if qual in dlink.text)
-                
-            except:
-                print self.url
-                try:
-                    embedLinks = self.soup.find('div', id=re.compile('tabs.*'))
-                except:
-                    return None
-                for i in embedLinks.findAll('iframe'):
-                    try:
-                        embed = webpage(i['src'])
-                        self.vidComp = next(re.compile(pattern) for site, pattern in 
-                                            sites.iteritems() if site in embed.url)
-                        return unescape(self.runRepl(self.vidComp.search(embed.source)))
-                    except:
-                        pass
+                            for dlink in self.soup.findAll('a') if qual in dlink.text)
+                            #for dlink in self.soup.find('div', class_='download_feed_link').findAll('a')
+                            #if qual in dlink.text)
+            #sites = {'streamcannon': '<source src="(?P<vid>[^"]*)"', 'mp4upload': '\'file\': \'(?P<vid>[^\']*)\'',
+                     #'docs.google': 'url_encoded_fmt_stream_map"[^"]*"[^h]*(?P<vid>[^\\\\]*)\\\\'}
+            #except:
+                #print self.url
+                #try:
+                    #embedLinks = self.soup.find('div', id=re.compile('tabs.*'))
+                #except:
+                    #return None
+                #for i in embedLinks.findAll('iframe'):
+                    #try:
+                        #embed = webpage(i['src'])
+                        #self.vidComp = next(re.compile(pattern) for site, pattern in 
+                                            #sites.iteritems() if site in embed.url)
+                        #return unescape(self.runRepl(self.vidComp.search(embed.source)))
+                    #except:
+                        #pass
                     

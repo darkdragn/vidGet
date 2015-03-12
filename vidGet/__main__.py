@@ -1,7 +1,9 @@
 #!/usr/bin/python
 import argparse
 import os
-import socket 
+import signal
+import socket
+
 import subprocess
 import sys
 import time
@@ -141,7 +143,7 @@ def main(testIt, cookie=None):
             while True:
                 try:
                     if not num == results.epiSkip:
-                        if page.name:
+                        if hasattr(page, 'name'):
                             downEpisode(page.video, '/'.join([testIt.title, page.name]))
                         else:
                             downEpisode(page.video, nameIt(num))
@@ -166,6 +168,12 @@ def openUrl(req):
         display('File already complete!\n', 1)
         #display(''.join([req.get_full_url(), '\n']), 1)
         return None
+    
+def sigIntHandler(signal, frame):
+    # Catch all the CTRL+C
+    sys.stdout.write( '\nSigInt Caught, Terminating...\n')
+    sys.exit(0)
+    
 def writeStats(series):
     with open('/'.join([series.title, '.stats']), 'w') as f:
         f.write('Link: {}\n'.format(series.name))
@@ -197,15 +205,15 @@ if __name__ == '__main__':
                         metavar='verb', help='Specify a verbosity level.')
     
     results = parser.parse_args()
+    signal.signal(signal.SIGINT, sigIntHandler)
+    args = {'cookie': results.cookie, 'extras': results.extras, 'series': results.ser}
     if results.list:
         listAll()
     if not results.list and not results.ser:
         parser.print_help()
         sys.exit()
-    for i in site:
-        for tag in i.tags:
-            if results.site == tag:
-                main(i(results.ser, results.extras, results.cookie))
+    next(main(i(**args)) for i in site
+         for tag in i.tags if results.site == tag)
             
     # ### For future expansion ###
     # cookie=None

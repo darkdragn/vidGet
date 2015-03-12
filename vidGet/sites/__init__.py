@@ -1,1 +1,1 @@
-__all__ = ['bangbros']
+__all__ = ['animehaven', 'bangbros', 'kiss']
