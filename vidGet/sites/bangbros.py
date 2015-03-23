@@ -1,22 +1,26 @@
 import re
 
 try:
-    from vidGet.vidsite import vidSeries
-    from vidGet.util import memorize
+    from vidGet.vidsite import memorize, initMech, vidSeries
 except ImportError:
-    from vidsite import vidSeries
-    from util import memorize
+    from vidsite import memorize, initMech, vidSeries
 
 class bangbros(vidSeries):
     siteTemplate = 'http://beta.members.bangbros.com{}'
     seriesTemplate = siteTemplate.format('/product/1/girl/{}')
-    tags = ['bb', 'bangbros']
-    type_ = 'Model'
+    tags, type_ = ['bb', 'bangbros'], 'Model'
     
     pageList = lambda self: self.soup.findAll('span', class_='echThumbLnk-desc')
     siteList = lambda self: self.soup.findAll('div', 
-                            class_='vdoThumbHolder')[-1].findAll('span', class_='echThumbLnk-desc')
-    
+                            class_='vdoThumbHolder')[-1].findAll('span', 
+                            class_='echThumbLnk-desc')
+        
+    def __init__(self, series, extras=None, cookie=None):
+        self.name = series
+        self.br = initMech(self.siteTemplate.format(''), cookie)
+        if extras:
+            self.extras = extras.split(',')
+            self.runExtras()
     def runExtras(self):
         for i in self.extras:
             if 'site' in i:
@@ -28,8 +32,7 @@ class bangbros(vidSeries):
                 self.title = i.split('=')[-1]
             elif 'search' in i:
                 self.seriesTemplate = self.siteTemplate.format('/product/1/search/{}')
-                self.pageList = self.siteList
-                self.title = self.name
+                self.pageList, self.title = self.siteList, self.name
     @property 
     @memorize
     def pages(self):
@@ -52,6 +55,7 @@ class bangbros(vidSeries):
         @property
         @memorize
         def video(self):
+            btnHolder = self.soup.findAll('div', class_='wtm-btnHolder clearfix')
             return next(b['href'] for i in ['720', '480']
-                        for t in self.soup.findAll('div', class_='wtm-btnHolder clearfix')
-                        for b in t.findAll('a') if '720' in b['href'] and 'mp4' in b['href'])
+                        for t in btnHolder for b in t.findAll('a') 
+                        if '720' in b['href'] and 'mp4' in b['href'])

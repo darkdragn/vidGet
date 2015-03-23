@@ -26,6 +26,6 @@ class kiss(vidSeries):
         @property
         @memorize
         def video(self):
-            return next(s['value'] for i in ['720p', '718p', '480p', '1080p', '360p', '352p'] for s in 
-                        self.soup.find('select', id="selectQuality").findAll('option') if i in s)
-                        
+            qualList = self.soup.find('select', id="selectQuality").findAll('option')
+            return next(s['value'] for i in ['720p', '718p', '480p', '1080p', '360p', '352p'] 
+                        for s in qualList if i in s)

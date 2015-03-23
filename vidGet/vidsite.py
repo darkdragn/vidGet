@@ -1,7 +1,6 @@
 import os
 import re
 
-#from embedList import setCompile
 from util import memorize, webpage, initMech
 
 class vidSeries(webpage):
@@ -49,26 +48,7 @@ class vidSeries(webpage):
             return self.episode
         @property
         @memorize
-        def embed(self):
-            return self.embedded(self.embedLink)
-        @property
-        @memorize
-        def embedLink(self):
-            if self.series:
-                return self.series.siteTemplate.format(self.linkComp.search(self.source).group('link'))
-            return self.linkComp.search(self.source).group('link')
-        @property
-        @memorize
         def video(self):
             if hasattr(self, 'compSearch'):
                 setCompile(self)
             return self.vidComp.search(self.embed.source).group('vid')
-
-        class embedded(webpage):
-            def __init__(self, link):
-                self.link  = link
-            @property
-            @memorize
-            def url(self):
-                return self.link
-                

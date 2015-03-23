@@ -151,7 +151,7 @@ def main(testIt, cookie=None):
                 except AttributeError:
                     print('Unable to download {}.'.format(nameIt(num)))
                     raise
-                except (urllib2.httplib.ssl.SSLError, socket.timeout):
+                except (urllib2.httplib.ssl.SSLError, socket.error, socket.timeout):
                     #testIt.cleanup()
                     display(' Timeout Error! Cleaning up...\n', 1)
                     #sys.exit()
