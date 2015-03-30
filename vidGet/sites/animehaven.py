@@ -35,7 +35,10 @@ class animehaven(vidSeries):
     @property
     @memorize
     def pages(self):
-        return self.listPages(self.soup.find('a', text=self.matchIt)['href'])[::-1]
+        try:
+            return self.listPages(self.soup.find('a', text=self.matchIt)['href'])[::-1]
+        except:
+            return self.listPages(self.url)[::-1]
         
     class page(vidSeries.page):
         
@@ -46,22 +49,3 @@ class animehaven(vidSeries):
                 hold = self.soup
                 return next(dlink['href'] for qual in ['720', '480']
                             for dlink in self.soup.findAll('a') if qual in dlink.text)
-                            #for dlink in self.soup.find('div', class_='download_feed_link').findAll('a')
-                            #if qual in dlink.text)
-            #sites = {'streamcannon': '<source src="(?P<vid>[^"]*)"', 'mp4upload': '\'file\': \'(?P<vid>[^\']*)\'',
-                     #'docs.google': 'url_encoded_fmt_stream_map"[^"]*"[^h]*(?P<vid>[^\\\\]*)\\\\'}
-            #except:
-                #print self.url
-                #try:
-                    #embedLinks = self.soup.find('div', id=re.compile('tabs.*'))
-                #except:
-                    #return None
-                #for i in embedLinks.findAll('iframe'):
-                    #try:
-                        #embed = webpage(i['src'])
-                        #self.vidComp = next(re.compile(pattern) for site, pattern in 
-                                            #sites.iteritems() if site in embed.url)
-                        #return unescape(self.runRepl(self.vidComp.search(embed.source)))
-                    #except:
-                        #pass
-                    

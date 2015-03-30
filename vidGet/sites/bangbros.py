@@ -10,6 +10,7 @@ class bangbros(vidSeries):
     seriesTemplate = siteTemplate.format('/product/1/girl/{}')
     tags, type_ = ['bb', 'bangbros'], 'Model'
     
+    formatPage = lambda self, x: self.siteTemplate.format(x.a['href'])
     pageList = lambda self: self.soup.findAll('span', class_='echThumbLnk-desc')
     siteList = lambda self: self.soup.findAll('div', 
                             class_='vdoThumbHolder')[-1].findAll('span', 
@@ -24,24 +25,19 @@ class bangbros(vidSeries):
     def runExtras(self):
         for i in self.extras:
             if 'site' in i:
-                self.pageList = self.siteList
+                self.pageList, self.type_ = self.siteList, 'Site'
                 self.seriesTemplate = self.siteTemplate
                 self.siteLoad()
-                self.type_ = 'Site'
             elif 'title' in i:
                 self.title = i.split('=')[-1]
             elif 'search' in i:
                 self.seriesTemplate = self.siteTemplate.format('/product/1/search/{}')
                 self.pageList, self.title = self.siteList, self.name
-    @property 
-    @memorize
-    def pages(self):
-        return [self.page(self.siteTemplate.format(i.a['href']), self) 
-                for i in self.pageList()]
     def siteLoad(self):
         self.br.open(self.url)
         self.br.click_link(link=self.br.find_link(text_regex=re.compile('Latest.*')))
         self.source = self.br.response().read()
+        
     @property
     @memorize
     def title(self):

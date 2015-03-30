@@ -4,7 +4,6 @@ import re
 from util import memorize, webpage, initMech
 
 class vidSeries(webpage):
-    pageComp       = NotImplemented
     siteTemplate   = NotImplemented
     seriesTemplate = NotImplemented
     type_ = 'Series'
@@ -13,29 +12,20 @@ class vidSeries(webpage):
         if extras:
             self.extras = extras.split(',')
             self.runExtras()
-        self.name = series
+        self.cookie, self.name = cookie, series
         self.br = initMech(self.siteTemplate.format(''), cookie)
 
     @property
     @memorize
     def pages(self):
-        pages = []
-        if hasattr(self, pageList):
-            for i in pageList:
-                hold = webpage(self.siteTemplate.format(pageList))
-                [pages.append(self.page(i)) for i in self.pageIt(self.soup)]
-        else:
-            [pages.append(self.page(i)) for i in self.pageIt(self.soup)]
-        return pages
+        return [self.page(self.formatPage(i), self) 
+                for i in self.pageList()]
     @property
     @memorize
     def title(self):
         return self.name
     
     class page(webpage):
-        linkComp = NotImplemented
-        vidComp  = NotImplemented
-        vidName  = None
 	
         def __init__(self, episode, series=None):
             self.episode = episode
@@ -49,6 +39,4 @@ class vidSeries(webpage):
         @property
         @memorize
         def video(self):
-            if hasattr(self, 'compSearch'):
-                setCompile(self)
             return self.vidComp.search(self.embed.source).group('vid')
