@@ -38,7 +38,7 @@ class animehaven(vidSeries):
         try:
             return self.listPages(self.soup.find('a', text=self.matchIt)['href'])[::-1]
         except:
-            return self.listPages(self.url)[::-1]
+            return self.listPages('/'.join([self.seriesTemplate.format('episodes/subbed'),self.name]))[::-1]
         
     class page(vidSeries.page):
         
@@ -47,5 +47,5 @@ class animehaven(vidSeries):
         def video(self):
                 self.strainOnly = 'a'
                 hold = self.soup
-                return next(dlink['href'] for qual in ['720', '480']
-                            for dlink in self.soup.findAll('a') if qual in dlink.text)
+                return next(dlink['href'] for qual in ['720p', '480p']
+                            for dlink in self.soup.findAll('a') if qual == dlink.text)
