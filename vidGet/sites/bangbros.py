@@ -28,6 +28,7 @@ class bangbros(vidSeries):
                 self.pageList, self.type_ = self.siteList, 'Site'
                 self.seriesTemplate = self.siteTemplate
                 self.siteLoad()
+                self.pages = self._sitePages
             elif 'title' in i:
                 self.title = i.split('=')[-1]
             elif 'search' in i:

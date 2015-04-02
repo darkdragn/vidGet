@@ -19,7 +19,7 @@ class kiss(vidSeries):
                 self.siteTemplate = 'http://kisscartoon.me{}'
                 self.seriesTemplate = self.siteTemplate.format('/Cartoon/{}')
     
-    class page(vidSeries.page)
+    class page(vidSeries.page):
     
         @property
         @memorize
