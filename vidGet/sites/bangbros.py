@@ -34,6 +34,8 @@ class bangbros(vidSeries):
             elif 'search' in i:
                 self.seriesTemplate = self.siteTemplate.format('/product/1/search/{}')
                 self.pageList, self.title = self.siteList, self.name
+            elif 'pref' in i:
+                self.pref = i.split('=')[-1]
     def siteLoad(self):
         self.br.open(self.url)
         self.br.click_link(link=self.br.find_link(text_regex=re.compile('Latest.*')))
@@ -66,7 +68,12 @@ class bangbros(vidSeries):
         @property
         @memorize
         def video(self):
+            pref = ['720', '480']
+            if hasattr(self.series, 'pref'):
+                for i in pref:
+                    if self.series.pref in i:
+                        pref.insert(0, pref.pop(pref.index(self.series.pref)))
             btnHolder = self.soup.findAll('div', class_='wtm-btnHolder clearfix')
-            return next(b['href'] for i in ['720', '480']
+            return next(b['href'] for i in pref
                         for t in btnHolder for b in t.findAll('a') 
-                        if '720' in b['href'] and 'mp4' in b['href'])
+                        if i in b['href'] and 'mp4' in b['href'])
