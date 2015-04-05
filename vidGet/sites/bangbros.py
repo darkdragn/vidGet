@@ -11,10 +11,10 @@ class bangbros(vidSeries):
     tags, type_ = ['bb', 'bangbros'], 'Model'
     
     formatPage = lambda self, x: self.siteTemplate.format(x.a['href'])
-    pageList = lambda self: self.soup.findAll('span', class_='echThumbLnk-desc')
-    siteList = lambda self, web: web.soup.findAll('div', 
-                      class_='vdoThumbHolder')[-1].findAll('span', 
-                      class_='echThumbLnk-desc')
+    pageList   = lambda self: self.soup.findAll('span', class_='echThumbLnk-desc')
+    siteList   = lambda self: self.soup.findAll('div', 
+                        class_='vdoThumbHolder')[-1].findAll('span', 
+                        class_='echThumbLnk-desc')
         
     def __init__(self, series, extras=None, cookie=None):
         self.name = series
@@ -27,7 +27,6 @@ class bangbros(vidSeries):
             if 'site' in i:
                 self.pageList, self.type_ = self.siteList, 'Site'
                 self.seriesTemplate = self.siteTemplate
-                self.siteLoad()
                 self.pages = self._sitePages
             elif 'title' in i:
                 self.title = i.split('=')[-1]
@@ -36,10 +35,6 @@ class bangbros(vidSeries):
                 self.pageList, self.title = self.siteList, self.name
             elif 'pref' in i:
                 self.pref = i.split('=')[-1]
-    def siteLoad(self):
-        self.br.open(self.url)
-        self.br.click_link(link=self.br.find_link(text_regex=re.compile('Latest.*')))
-        self.source = self.br.response().read()
         
     def sitePageGet(self, cp=1, lp=None):
         pages = []
