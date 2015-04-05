@@ -27,7 +27,6 @@ class bangbros(vidSeries):
             if 'site' in i:
                 self.pageList, self.type_ = self.siteList, 'Site'
                 self.seriesTemplate = self.siteTemplate
-                self.siteLoad()
                 self.pages = self._sitePages
             elif 'title' in i:
                 self.title = i.split('=')[-1]
@@ -36,10 +35,6 @@ class bangbros(vidSeries):
                 self.pageList, self.title = self.siteList, self.name
             elif 'pref' in i:
                 self.pref = i.split('=')[-1]
-    def siteLoad(self):
-        self.br.open(self.url)
-        self.br.click_link(link=self.br.find_link(text_regex=re.compile('Latest.*')))
-        self.source = self.br.response().read()
         
     @property
     @memorize

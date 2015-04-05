@@ -17,6 +17,8 @@ class animehaven(vidSeries):
         for i in self.extras:
             if 'dub' in i:
                 self.matchIt = re.compile('Episodes.*Dub.*')
+            elif 'pref' in i:
+                self.pref = i.split('=')[-1]
     def listPages(self, url, cp=1, lp=None):
         curUrl = url if cp == 1 else '/'.join([url, 'page', str(cp)])
         intUrlObj = webpage(curUrl, self.br)
@@ -45,7 +47,9 @@ class animehaven(vidSeries):
         @property
         @memorize
         def video(self):
-                self.strainOnly = 'a'
-                hold = self.soup
-                return next(dlink['href'] for qual in ['720p', '480p']
-                            for dlink in self.soup.findAll('a') if qual == dlink.text)
+            pref, self.strainOnly = ['720p', '480p'], 'a'
+            if hasattr(self.series, 'pref'):
+                next(pref.insert(0, pref.pop(pref.index(i)))
+                     for i in pref if self.series.pref in i)
+            return next(dlink['href'] for qual in pref
+                        for dlink in self.soup.findAll('a') if qual == dlink.text)
