@@ -1,4 +1,5 @@
 import re
+from multiprocessing import Pool
 from bs4 import BeautifulSoup, SoupStrainer
 try:
     from vidGet.vidsite import vidSeries
@@ -6,6 +7,15 @@ try:
 except ImportError:
     from vidsite import vidSeries
     from util import memorize, runRepl, unescape, webpage
+
+
+def getSet(inVars):
+    url, page = inVars
+    curUrl = '/'.join([url, 'page', str(page)])
+    intUrlObj = webpage(curUrl)
+    so = SoupStrainer('article')
+    soup = BeautifulSoup(intUrlObj.urlObj.read(), parse_only=so)
+    return [ i.a['href'] for i in soup.findAll('h2')]
 
 class animehaven(vidSeries):
     siteTemplate   = 'http://animehaven.org/{}'
@@ -19,28 +29,30 @@ class animehaven(vidSeries):
                 self.matchIt = re.compile('Episodes.*Dub.*')
             elif 'pref' in i:
                 self.pref = i.split('=')[-1]
-    def listPages(self, url, cp=1, lp=None):
-        curUrl = url if cp == 1 else '/'.join([url, 'page', str(cp)])
+    def listPages(self, url):
+        curUrl = url 
         intUrlObj = webpage(curUrl, self.br)
-        if not lp:
-            try:
-                lpSoup = BeautifulSoup(intUrlObj.source, 'html.parser', parse_only=SoupStrainer('nav'))
-                lp = int(lpSoup.find('nav', class_='pagination').findAll('a')[-1]['href'].split('/')[-1])
-            except AttributeError:
-                lp = 1
-        intUrlObj.strainOnly = 'article'
-        pages = [self.page(i.a['href'], self) for i in intUrlObj.soup.findAll('h2')]
-        if cp < lp:
-            pages.extend(self.listPages(url, cp+1, lp))
-        return pages
+        try:
+            lpSoup = BeautifulSoup(intUrlObj.source, 'html.parser', 
+                                   parse_only=SoupStrainer('nav'))
+            lp = int(lpSoup.find('nav', class_='pagination').findAll('a')[-1]['href'].split('/')[-1])
+        except AttributeError:
+            lp = 1
+        pool = Pool(processes=4)
+        pages = pool.map(getSet, [(url, x) for x in range(1, lp+1)])
+        pool.close()
+        ret = []
+        for i in pages[::-1]:
+                ret.extend(self.page(p) for p in i[::-1])
+        return ret
     
     @property
     @memorize
     def pages(self):
         try:
-            return self.listPages(self.soup.find('a', text=self.matchIt)['href'])[::-1]
+            return self.listPages(self.soup.find('a', text=self.matchIt)['href'])
         except:
-            return self.listPages('/'.join([self.seriesTemplate.format('episodes/subbed'),self.name]))[::-1]
+            return self.listPages('/'.join([self.seriesTemplate.format('episodes/subbed'),self.name]))
         
     class page(vidSeries.page):
         
