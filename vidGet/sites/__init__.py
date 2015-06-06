@@ -1,1 +1,2 @@
-__all__ = ['animehaven', 'animeflavor', 'bangbros', 'gogoanime','kiss']
+__all__ = ['animehaven', 'animeflavor', 'bangbros', 
+           'watchcartoononline', 'gogoanime', 'kiss']
