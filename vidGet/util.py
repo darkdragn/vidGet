@@ -61,6 +61,17 @@ def unescape(in_data):
         in_data = in_data.replace(*i)
     return parser().unescape(in_data)
 
+class timing():
+    def __init__(self):
+        self.updateTime()
+    def tryRun(self, toRun, runOpts, gap=2):
+        current = time.time()
+        if (current - self.lastRun) > gap:
+            self.updateTime()
+            toRun(*runOpts)
+    def updateTime(self):
+        self.lastRun = time.time()
+
 class timeIt():
     def __init__(self, name, current):
         self.fileName = name

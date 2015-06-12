@@ -17,12 +17,12 @@ else:
 
 try:
     import vidGet.sites as sites
-    from vidGet.util import timeIt
+    from vidGet.util import timeIt, timing
     importClass = lambda i: getattr(__import__('vidGet.sites.{}'.format(i), 
                                                fromlist=[i]), i)
 except ImportError:
     import sites
-    from util import timeIt
+    from util import timeIt, timing
     importClass = lambda i: getattr(__import__('sites.{}'.format(i), 
                                                fromlist=[i]), i)
 
@@ -85,6 +85,7 @@ def downEpisode(link, name):
         cur   = curSize if curSize else 0
         fileMode = 'ab'
     speedCheck = timeIt(name, cur)
+    check = timing()
     with open(name, fileMode) as f:
         lenTo = 1024
         while True:
@@ -97,13 +98,11 @@ def downEpisode(link, name):
             cur += len(buffer)
             speed = speedCheck.speed(cur)
             lenTo = speedCheck.adj(speed)
-            display('\r{cur}Kb/{total}Kb[{:-<20}]{speed: >5}KB/s'.format(('+' *
-                    int((cur)*20/total)), cur=cur/1024, total=int(total/1024), 
-                    speed=speed), 2, 1)
-        f.flush()
-        f.close()
+            disPas = ['\r{cur}Kb/{total}Kb[{:-<20}]{speed: >5}KB/s'.format(('+' *
+                      int((cur)*20/total)), cur=cur/1024, total=int(total/1024), 
+                      speed=speed), 2, 1]
+            check.tryRun(display, disPas)
     display('  Finished!!! \n', 2)
-    #currentRemove(name)
 
 def listAll():
     print('{: <20}{}\n{: <20}{}'.format('Sites', 'Tags', '-----', '----'))
