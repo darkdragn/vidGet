@@ -12,13 +12,6 @@ class animeflavor(vidSeries):
     seriesTemplate = siteTemplate.format('/cartoon/{}')
     tags  = ['af', 'animeflavor']
     
-    #def runExtras(self):
-        #for i in self.extras:
-            #if 'dub' in i:
-                #self.matchIt = re.compile('Episodes.*Dub.*')
-            #elif 'pref' in i:
-                #self.pref = i.split('=')[-1]
-    
     @property
     @memorize
     def pages(self):
@@ -31,11 +24,6 @@ class animeflavor(vidSeries):
             return webpage(self.embedLink)
         @property
         def embedLink(self):
-            #try:
-                #link = self.soup.find('div', class_='tab-body first ').iframe['src']
-            #except:
-                #link = self.soup.find('div', class_='node').find('div', 
-                                             #class_='content').find('iframe')['src']
             return self.soup.find(src=re.compile('filehoot'))['src']
         @property
         def url(self):
