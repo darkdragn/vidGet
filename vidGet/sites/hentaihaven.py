@@ -11,7 +11,8 @@ class hentaihaven(vidSeries):
     
     @property
     def pages(self):
-        return [self.page(i.a['href']) for i in self.soup.findAll('h3')]
+        return [self.page(i.a['href']) for i in self.soup.findAll('h3') 
+                                       if not 'The Blacklist' == i.text]
         
     class page(vidSeries.page):
         @property
@@ -21,7 +22,3 @@ class hentaihaven(vidSeries):
             return next(o['href'] for i in pref 
                         for o in links.findAll('a') 
                         if i in o.span.text)
-        #@property
-        #def url(self):
-            #return self.series.siteTemplate.format(''.join(['/', self.series.name, 
-                                                   #'-episode-', str(self.episode)]))
