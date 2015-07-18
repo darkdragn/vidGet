@@ -14,7 +14,8 @@ def getSet(inVars):
     curUrl = '/'.join([url, 'page', str(page)])
     intUrlObj = webpage(curUrl)
     so = SoupStrainer('article')
-    soup = BeautifulSoup(intUrlObj.urlObj.read(), parse_only=so)
+    soup = BeautifulSoup(intUrlObj.urlObj.read(), 'html.parser',
+                                                  parse_only=so)
     return [ i.a['href'] for i in soup.findAll('h2')]
 
 class animehaven(vidSeries):

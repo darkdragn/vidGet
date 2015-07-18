@@ -181,7 +181,7 @@ def writeStats(series):
 if __name__ == '__main__':
     site = [importClass(i) for i in sites.__all__]
     
-    parser=argparse.ArgumentParser('animeGet Cli')
+    parser=argparse.ArgumentParser('vidGet Cli')
     parser.add_argument('ser', action='store', metavar='series', nargs='?',
                         help='Unique identifier for the series to rip.')
     parser.add_argument('-c', action='store', dest='cookie', default=None, 

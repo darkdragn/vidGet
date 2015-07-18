@@ -1,5 +1,4 @@
 import re
-from bs4 import BeautifulSoup, SoupStrainer
 try:
     from vidGet.vidsite import vidSeries
     from vidGet.util import memorize, runRepl, unescape, webpage
