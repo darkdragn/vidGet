@@ -71,7 +71,11 @@ def downEpisode(link, name):
         curSize = os.path.getsize(name)
         req.headers['Range'] = 'bytes=%s-' % (curSize)
     if not 'downUrl' in locals().keys() or not downUrl:
-        downUrl = openUrl(req)
+        try:
+            downUrl = openUrl(req)
+        except urllib2.HTTPError:
+            display('File already complete!\n', 1)
+            return
     try:
         total = int(downUrl.info().get('content-length'))
     except:
@@ -102,6 +106,7 @@ def downEpisode(link, name):
                       int((cur)*20/total)), cur=cur/1024, total=int(total/1024), 
                       speed=speed), 2, 1]
             check.tryRun(display, disPas)
+            f.flush()
     display('  Finished!!! \n', 2)
 
 def listAll():
@@ -145,17 +150,17 @@ def main(testIt, cookie=None):
                         if hasattr(page, 'name'):
                             downEpisode(page.video, '/'.join([testIt.title, page.name]))
                         else:
-                            downEpisode(page.video, nameIt(num))
+                            try:
+                                downEpisode(page.video, nameIt(num))
+                            except:
+                                print page.video
                         break
                 except AttributeError:
                     print('Unable to download {}.'.format(nameIt(num)))
                     raise
-                except (urllib2.httplib.ssl.SSLError, socket.error, socket.timeout):
-                    #testIt.cleanup()
+                except (urllib2.httplib.ssl.SSLError, 
+                        socket.error, socket.timeout) as e:
                     display(' Timeout Error! Cleaning up...\n', 1)
-                    #sys.exit()
-                except urllib2.URLError:
-                    display('Unable to download due to timeout.\n', 1)
     if hasattr(testIt, 'cleanup'):
         testIt.cleanup()
     display('Complete!!!\n', 1)
@@ -164,9 +169,9 @@ def openUrl(req):
     try:
         return urllib2.urlopen(req, timeout=20.0)
     except urllib2.HTTPError:
-        display('File already complete!\n', 1)
-        #display(''.join([req.get_full_url(), '\n']), 1)
-        return None
+        #display('File already complete!\n', 1)
+        display(''.join([req.get_full_url(), '\n']), 1)
+        raise
     
 def sigIntHandler(signal, frame):
     # Catch all the CTRL+C
@@ -213,9 +218,3 @@ if __name__ == '__main__':
         sys.exit()
     next(main(i(**args)) for i in site
          for tag in i.tags if results.site == tag)
-            
-    # ### For future expansion ###
-    # cookie=None
-    # if results.cookie:
-    #     cookie=loadCookie(results.cookie)
-    
