@@ -104,6 +104,14 @@ def downEpisode(link, name):
             check.tryRun(display, disPas)
             f.flush()
     display('  Finished!!! \n', 2)
+    
+def downPreview(imgs, dirIt):
+    for num, img in enumerate(imgs):
+        outName = ''.join(['preview_', str(num), '.jpg'])
+        urlObj  = urllib2.urlopen(img)
+        with open('/'.join([dirIt, outName]), 'wb') as f:
+            f.write(urlObj.read())
+        
 
 def listAll():
     print('{: <20}{}\n{: <20}{}'.format('Sites', 'Tags', '-----', '----'))
@@ -141,6 +149,8 @@ def main(testIt, cookie=None):
         if testIt.pageCheck:
             for i in pages:
                 i.video
+        if hasattr(testIt, 'preview'):
+            downPreview(testIt.preview, dirIt)
         writeStats(testIt)
         for num, page in enumerate(pages, results.startEpi):
             while True:

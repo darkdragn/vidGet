@@ -41,6 +41,10 @@ class mofos(vidSeries):
         return [self.page(self.siteTemplate.format(i['href']), self) 
                 for i in self.soup.find('section', class_='girl-videos').findAll('a') 
                 if 'scene/view' in i['href'] ]
+    @property
+    def preview(self):
+        return [self.soup.find('div', class_='picture-container').img['src'],
+                self.soup.find('div', class_='right-banner-background')['style'].split('\'')[1]]
                 
     def runExtras(self):
         for i in self.extras:
