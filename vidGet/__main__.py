@@ -71,11 +71,7 @@ def downEpisode(link, name):
         curSize = os.path.getsize(name)
         req.headers['Range'] = 'bytes=%s-' % (curSize)
     if not 'downUrl' in locals().keys() or not downUrl:
-        try:
-            downUrl = openUrl(req)
-        except urllib2.HTTPError:
-            display('File already complete!\n', 1)
-            return
+        downUrl = openUrl(req)
     try:
         total = int(downUrl.info().get('content-length'))
     except:
@@ -103,7 +99,7 @@ def downEpisode(link, name):
             speed = speedCheck.speed(cur)
             lenTo = speedCheck.adj(speed)
             disPas = ['\r{cur}Kb/{total}Kb[{:-<20}]{speed: >5}KB/s'.format(('+' *
-                      int((cur)*20/total)), cur=cur/1024, total=int(total/1024), 
+                      int((cur)*21/total)), cur=cur/1024, total=int(total/1024), 
                       speed=speed), 2, 1]
             check.tryRun(display, disPas)
             f.flush()
@@ -142,6 +138,9 @@ def main(testIt, cookie=None):
         downEpisode(page.video, name)
     else:
         pages = testIt.pages[results.startEpi-1:]
+        if testIt.pageCheck:
+            for i in pages:
+                i.video
         writeStats(testIt)
         for num, page in enumerate(pages, results.startEpi):
             while True:
@@ -168,10 +167,12 @@ def main(testIt, cookie=None):
 def openUrl(req):
     try:
         return urllib2.urlopen(req, timeout=20.0)
-    except urllib2.HTTPError:
-        #display('File already complete!\n', 1)
-        display(''.join([req.get_full_url(), '\n']), 1)
-        raise
+    except urllib2.HTTPError as err:
+        if err.code == 416:
+            display('File already complete!\n', 1)
+        else:
+            raise
+        #display(''.join([req.get_full_url(), '\n']), 1)
     
 def sigIntHandler(signal, frame):
     # Catch all the CTRL+C

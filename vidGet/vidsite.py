@@ -4,6 +4,7 @@ import re
 from util import memorize, webpage, initMech
 
 class vidSeries(webpage):
+    pageCheck      = False
     siteTemplate   = NotImplemented
     seriesTemplate = NotImplemented
     type_ = 'Series'

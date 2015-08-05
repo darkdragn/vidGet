@@ -7,21 +7,22 @@ except ImportError:
     from util import memorize, webpage, initMech
 
 class mofos(vidSeries):
+    pageCheck      = True
     siteTemplate   = 'http://members2.mofos.com{}'
     seriesTemplate = siteTemplate.format('/model/{}')
-    tags, type_  = ['m', 'mofos'], 'Model'
+    tags, type_    = ['m', 'mofos'], 'Model'
     
     def __init__(self, series, extras=None, cookie=None):
         if extras:
             self.extras = extras.split(',')
             self.runExtras()
-        self.cookie, self.name = cookie, series
-        self.br = initMech(self.siteTemplate.format(''), cookie)
+        self.name = series
+        self.br = initMech(self.siteTemplate.format(''))
         self.auth()
-        for i in self.pages:
-            i.video
     
     def auth(self):
+        if not hasattr(self, 'username') or not hasattr(self, 'password'):
+            raise ValueError("Please pass user and pass extra options.")
         self.br.select_form(nr=0)
         self.br['username'], self.br['password'] = self.username, self.password
         try:
@@ -50,6 +51,7 @@ class mofos(vidSeries):
         
     class page(vidSeries.page):
         @property
+        @memorize
         def name(self):
             return self.videoUrl.info().get('content-disposition').split('=')[-1]
         @property
@@ -59,8 +61,8 @@ class mofos(vidSeries):
         @property
         @memorize
         def videoUrl(self):
-            pref = ['720p', '360p']
+            pref = ['720p', 'MPEG4']
             url = next(self.series.siteTemplate.format(o['href']) for i in pref 
-                        for o in self.soup.find('div', class_='download-frame').findAll('a') 
-                        if i in o.text)
+                       for o in self.soup.find('div', class_='download-frame').findAll('a') 
+                       if i in o.text)
             return self.series.br.open(url)
