@@ -8,6 +8,7 @@ except ImportError:
     from vidsite import vidSeries
     from util import memorize, runRepl, unescape, webpage
 
+bs4 = BeautifulSoup
 
 def getSet(inVars):
     url, page = inVars
@@ -27,7 +28,8 @@ class animehaven(vidSeries):
     def runExtras(self):
         for i in self.extras:
             if 'dub' in i:
-                self.matchIt = re.compile('Episodes.*Dub.*')
+                #self.matchIt = re.compile('Episodes.*Dub.*')
+                self.matchIt = re.compile('English.*Dub.*')
             elif 'pref' in i:
                 self.pref = i.split('=')[-1]
     def listPages(self, url):
@@ -44,7 +46,7 @@ class animehaven(vidSeries):
         pool.close()
         ret = []
         for i in pages[::-1]:
-                ret.extend(self.page(p) for p in i[::-1])
+                ret.extend(self.page(p, self) for p in i[::-1])
         return ret
     
     @property
@@ -53,6 +55,7 @@ class animehaven(vidSeries):
         try:
             return self.listPages(self.soup.find('a', text=self.matchIt)['href'])
         except:
+	    print("FirstCheck")
             return self.listPages('/'.join([self.seriesTemplate.format('episodes/subbed'),self.name]))
         
     class page(vidSeries.page):
@@ -64,5 +67,24 @@ class animehaven(vidSeries):
             if hasattr(self.series, 'pref'):
                 next(pref.insert(0, pref.pop(pref.index(i)))
                      for i in pref if self.series.pref in i)
-            return next(dlink['href'] for qual in pref
-                        for dlink in self.soup.findAll('a') if qual == dlink.text)
+            try: 
+                return next(dlink['href'] for qual in pref
+                            for dlink in self.soup.findAll('a', class_='btn') 
+                            if qual in dlink.text)
+            except:
+                urlTemp = 'http://basilisk.tiwi.kiwi/{}/v.mp4'
+                while True:
+                    try:
+                        embedLink = self.soup.p.iframe['src']
+                        break
+                    except AttributeError:
+                        self.soup = bs4(self.source)
+                embed = webpage(embedLink)
+                matchIt = re.search('image\|(.*)sources', 
+                                    embed.soup.findAll('script')[-1].text)
+                grouping = matchIt.group(1).split('|')
+                return next(urlTemp.format(grouping[num+1])
+                            for qual in pref 
+                            for num, i in enumerate(grouping)
+                            if qual in i)
+
