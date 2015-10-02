@@ -8,6 +8,8 @@ import subprocess
 import sys
 import time
 
+##########################################
+######## Version Specific Imports ########
 if sys.version_info.major >= 3:
     import urllib.request as urllib2
     import http.cookiejar as cookielib
@@ -15,6 +17,8 @@ else:
     import urllib2
     import cookielib
 
+##########################################
+######## Location Specific Imports #######
 try:
     import vidGet.sites as sites
     from vidGet.util import timeIt, timing
@@ -26,24 +30,6 @@ except ImportError:
     importClass = lambda i: getattr(__import__('sites.{}'.format(i), 
                                                fromlist=[i]), i)
 
-def currentSave(link, name):
-    currentPath = '/'.join([name.split('/')[0], '.current'])
-    if os.path.exists(currentPath):
-        with open(currentPath, 'rb') as f:
-            hold = f.read()
-            if name == hold.split('\t')[0]:
-                return hold.split('\t')[1]
-            else:
-                return None
-    else:
-        with open(currentPath, 'wb') as f:
-            f.write('\t'.join([name, link]))
-        return None
-    
-def currentRemove(name):
-    currentPath = '/'.join([name.split('/')[0], '.current'])
-    os.remove(currentPath)
-    
 def display(message, level=0, clrLine=False):
     if level <= results.verb:
         if clrLine:
@@ -61,9 +47,8 @@ def downEpisode(link, name):
     if not link:
         return
     cur, curSize, fileMode = 0, None, 'wb'
-    #linkAlt = currentSave(link, name)
     req = urllib2.Request(link)
-    req.headers['User-agent'] = ''.join(['Mozilla/5.0 (X11; U; Linux i686; ',
+    req.headers['User-Agent'] = ''.join(['Mozilla/5.0 (X11; U; Linux i686; ',
                                 'en-US) AppleWebKit/534.3 (KHTML,like Gecko) ',
                                 'Chrome/6.0.472.14 Safari/534.3'])
     display('Beginning on {}\n'.format(name.split('/')[-1]), 2)
@@ -119,21 +104,19 @@ def listAll():
         print('{: <20}{}'.format(''.join([sites.__all__[num], ':']), 
                                  ', '.join(i.tags)))
     sys.exit()
-    
-def loadCookie(fileName):
-    cookies = cookielib.MozillaCookieJar(filename=fileName)
-    cookies.load()
-    #handler = urllib2.HTTPHandler(debuglevel=1)
-    return [urllib2.HTTPCookieProcessor(cookies)]
 
 def main(testIt, cookie=None):
     dirIt = testIt.title
     total = len(testIt.pages)
-    #Test to see if we need to make the folder.
+    # Test to see if we need to make the folder.
     if not os.path.exists(dirIt) and not results.noDir:
         os.makedirs(dirIt)
+        
+    # Write a link name, and {type} stats
     writeStats(testIt)
-    display('{type} {name} contains {num} episodes.\n'.format(type=testIt.type_, name=testIt.title, 
+    
+    display('{type} {name} contains {num} episodes.\n'.format(type=testIt.type_, 
+                                                              name=testIt.title, 
                                                               num=len(testIt.pages)), 2)
     # Main loop, does the downloading/saving
     if results.noDir:
@@ -159,10 +142,7 @@ def main(testIt, cookie=None):
                         if hasattr(page, 'name'):
                             downEpisode(page.video, '/'.join([testIt.title, page.name]))
                         else:
-                            try:
-                                downEpisode(page.video, nameIt(num))
-                            except:
-                                print page.video
+                            downEpisode(page.video, nameIt(num))
                         break
                 except AttributeError:
                     print('Unable to download {}.'.format(nameIt(num)))

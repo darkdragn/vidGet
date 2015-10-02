@@ -16,7 +16,19 @@ else:
     import urllib2
     from HTMLParser import HTMLParser as parser
 
-#@profile
+
+def display(message, level=0, clrLine=False):
+    if level <= results.verb:
+        if clrLine:
+            global l
+            if not 'l' in globals():
+                try:
+                    l = int(subprocess.check_output(['tput', 'cols']))
+                except:
+                    l = 50
+            sys.stdout.write('\r{: ^{i}}'.format('', i=l))
+        sys.stdout.write(message)
+        sys.stdout.flush()
 def initMech(site, cookies=None):
     br = mechanize.Browser()
     
@@ -50,11 +62,23 @@ def memorize(obj):
             cache[key] = obj(*args, **kwargs)
         return cache[key]
     return memoizer
+def openUrl(req):
+    try:
+        return urllib2.urlopen(req, timeout=20.0)
+    except urllib2.HTTPError as err:
+        if err.code == 416:
+            display('File already complete!\n', 1)
+        else:
+            raise
 def runRepl(startPnt):
     repl = { '%3A': ':', '%2F': '/', '%3F': '?', '%3D': '=', '%26': '&', '%2C': ','}
     for i in repl.items():
         startPnt = startPnt.replace(*i)
     return startPnt
+def sigIntHandler(signal, frame):
+    # Catch all the CTRL+C
+    sys.stdout.write( '\nSigInt Caught, Terminating...\n')
+    sys.exit(0)
 def unescape(in_data):
     repl = {'%3F': '?', '%26': '&', '%3D': '=', '%2F': '/', '%3A': ':'}
     for i in repl.items():
