@@ -6,12 +6,14 @@ except ImportError:
     from vidsite import memorize, initMech, vidSeries, webpage
 
 class bangbros(vidSeries):
-    siteTemplate = 'http://beta.members.bangbros.com{}'
-    seriesTemplate = siteTemplate.format('/product/1/girl/{}')
+    #siteTemplate = 'http://beta.members.bangbros.com{}'
+    #seriesTemplate = siteTemplate.format('/product/1/girl/{}')
+    siteTemplate = 'http://members.bangbros.com{}'
+    seriesTemplate = siteTemplate.format('/model/{}')
     tags, type_ = ['bb', 'bangbros'], 'Model'
     
-    formatPage = lambda self, x: self.siteTemplate.format(x.a['href'])
-    pageList   = lambda self: self.soup.findAll('span', class_='echThumbLnk-desc')
+    formatPage = lambda self, x: self.siteTemplate.format(x['href'])
+    pageList   = lambda self: self.soup.findAll('a', class_='etLnk')
     siteList   = lambda self: self.soup.findAll('div', 
                         class_='vdoThumbHolder')[-1].findAll('span', 
                         class_='echThumbLnk-desc')
@@ -53,7 +55,10 @@ class bangbros(vidSeries):
     @property
     @memorize
     def title(self):
-        return self.soup.h1.text.replace(' ', '')
+        with open('test.html', 'wb') as f:
+            f.write(self.source)
+        print(self.url)
+        return self.soup.find('span', class_='mPhed').text.replace(' ', '')
     class page(vidSeries.page):
         
         @property
@@ -68,7 +73,7 @@ class bangbros(vidSeries):
                 for i in pref:
                     if self.series.pref in i:
                         pref.insert(0, pref.pop(pref.index(self.series.pref)))
-            btnHolder = self.soup.findAll('div', class_='wtm-btnHolder clearfix')
+            btnHolder = self.soup.findAll('div', class_='dropM')
             return next(b['href'] for i in pref
                         for t in btnHolder for b in t.findAll('a') 
                         if i in b['href'] and 'mp4' in b['href'])
