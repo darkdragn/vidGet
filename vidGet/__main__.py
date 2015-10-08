@@ -131,7 +131,10 @@ def main(testIt, cookie=None):
         pages = testIt.pages[results.startEpi-1:]
         if testIt.pageCheck:
             for i in pages:
-                i.video
+                try:
+                    i.video
+                except StopIteration:
+                    print "Missing a video here."
         if hasattr(testIt, 'preview'):
             downPreview(testIt.preview, dirIt)
         writeStats(testIt)
@@ -139,11 +142,15 @@ def main(testIt, cookie=None):
             while True:
                 try:
                     if not num == results.epiSkip:
-                        if hasattr(page, 'name'):
-                            downEpisode(page.video, '/'.join([testIt.title, page.name]))
-                        else:
-                            downEpisode(page.video, nameIt(num))
-                        break
+                        try:
+                            if hasattr(page, 'name'):
+                                downEpisode(page.video, '/'.join([testIt.title, page.name]))
+                            else:
+                                downEpisode(page.video, nameIt(num))
+                            break
+                        except StopIteration:
+                            print "Missing a video here."
+                            break
                 except AttributeError:
                     print('Unable to download {}.'.format(nameIt(num)))
                     raise

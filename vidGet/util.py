@@ -1,5 +1,6 @@
 import cookielib
 import functools
+import httplib
 import mechanize
 import requests
 import sys
@@ -145,7 +146,11 @@ class webpage():
     @property
     @memorize
     def source(self):
-        return str(self.urlObj.read())
+        while True:
+            try:
+                return str(self.urlObj.read())
+            except httplib.IncompleteRead:
+                pass
     @property
     @memorize
     def url(self):
