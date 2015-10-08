@@ -75,18 +75,31 @@ def downEpisode(link, name):
         lenTo = 1024
         while True:
             buffer = downUrl.read(lenTo)
-            if cur == total:
-                break
-            elif len(buffer) == 0:
-                raise socket.timeout
-            f.write(buffer)
             cur += len(buffer)
             speed = speedCheck.speed(cur)
             lenTo = speedCheck.adj(speed)
-            disPas = ['\r{cur}Kb/{total}Kb[{:-<20}]{speed: >5}KB/s'.format(('+' *
-                      int((cur)*21/total)), cur=cur/1024, total=int(total/1024), 
-                      speed=speed), 2, 1]
+            try:
+                remain = (total-cur)/(1024*speed)
+                remainMsg = '\tRemaining: {min:02}:{sec:02}'.format(min=remain/60, 
+                                                            sec=remain%60)
+            except ZeroDivisionError:
+                remainMsg = '\tStandby...'
+            tickerMsg = '\r{cur}Kb/{total}Kb[{:-<20}]'.format(
+                        ('+' * int((cur)*21/total)), cur=cur/1024, 
+                        total=int(total/1024)) 
+            speedMsg = '{speed: >5}KB/s'.format(speed=speed) 
+            disPas = [' '.join([tickerMsg, speedMsg, remainMsg]), 2, 1]
+            #disPas = ['\r{cur}Kb/{total}Kb[{:-<20}]{speed: >5}KB/s'.format(('+' *
+            #          int((cur)*21/total)), cur=cur/1024, total=int(total/1024), 
+            #          speed=speed), 2, 1]
             check.tryRun(display, disPas)
+            if cur == total:
+                display(*disPas)
+                break
+            elif len(buffer) == 0:
+                display(*disPas)
+                raise socket.timeout
+            f.write(buffer)
             f.flush()
     display('  Finished!!! \n', 2)
     
