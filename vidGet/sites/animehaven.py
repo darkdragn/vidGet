@@ -55,7 +55,6 @@ class animehaven(vidSeries):
         try:
             return self.listPages(self.soup.find('a', text=self.matchIt)['href'])
         except:
-	    print("FirstCheck")
             return self.listPages('/'.join([self.seriesTemplate.format('episodes/subbed'),self.name]))
         
     class page(vidSeries.page):
@@ -63,7 +62,7 @@ class animehaven(vidSeries):
         @property
         @memorize
         def video(self):
-            pref, self.strainOnly = ['720p', '480p'], 'a'
+            pref, self.strainOnly = ['720', '480'], 'a'
             if hasattr(self.series, 'pref'):
                 next(pref.insert(0, pref.pop(pref.index(i)))
                      for i in pref if self.series.pref in i)
@@ -72,19 +71,28 @@ class animehaven(vidSeries):
                             for dlink in self.soup.findAll('a', class_='btn') 
                             if qual in dlink.text)
             except:
-                urlTemp = 'http://basilisk.tiwi.kiwi/{}/v.mp4'
+                urlTemp = 'http://{}.tiwi.kiwi/{}/v.mp4'
+                grouping = (480, 720, 1080)
+                
                 while True:
                     try:
-                        embedLink = self.soup.p.iframe['src']
+                        embedLink = self.soup.find('div', 
+                                         class_='download_feed_link').a['href']
                         break
                     except AttributeError:
                         self.soup = bs4(self.source)
+                
                 embed = webpage(embedLink)
-                matchIt = re.search('image\|(.*)sources', 
-                                    embed.soup.findAll('script')[-1].text)
-                grouping = matchIt.group(1).split('|')
-                return next(urlTemp.format(grouping[num+1])
-                            for qual in pref 
-                            for num, i in enumerate(grouping)
-                            if qual in i)
+                matchIt  = re.search("init\|(.*)\|updateSrc", embed.source)
+                group    = matchIt.group(1).split('|')
+                try:
+                    firstHit = re.search("img src=\"http://(.*)\.tiwi.kiwi", 
+                                         embed.source).group(1)
+                except AttributeError as e:
+                    urlTemp = 'http://{}/{}/v.mp4'
+                    firstHit = re.search("img src=\"http://([^/]*)/", 
+                                         embed.source).group(1)
 
+                return next(urlTemp.format(firstHit, group[num])               
+                            for qual in pref for num, i in enumerate(grouping)
+                            if qual in str(i))
