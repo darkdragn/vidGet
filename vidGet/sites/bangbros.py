@@ -14,10 +14,8 @@ class bangbros(vidSeries):
     
     formatPage = lambda self, x: self.siteTemplate.format(x['href'])
     pageList   = lambda self: self.soup.findAll('a', class_='etLnk')
-    siteList   = lambda self: self.soup.findAll('div', 
-                        class_='vdoThumbHolder')[-1].findAll('span', 
-                        class_='echThumbLnk-desc')
-        
+    siteList   = lambda self, url: url.soup.findAll('a', class_='etLnk')
+
     def __init__(self, series, extras=None, cookie=None):
         self.name = series
         self.br = initMech(self.siteTemplate.format(''), cookie)
@@ -28,7 +26,7 @@ class bangbros(vidSeries):
         for i in self.extras:
             if 'site' in i:
                 self.pageList, self.type_ = self.siteList, 'Site'
-                self.seriesTemplate = self.siteTemplate
+                self.seriesTemplate = self.siteTemplate.format('/product/1/site/{}')
                 self.pages = self._sitePages
             elif 'title' in i:
                 self.title = i.split('=')[-1]
@@ -42,7 +40,10 @@ class bangbros(vidSeries):
         pages = []
         url = webpage('/'.join([self.url, 'latest', str(cp)]), self.br)
         if not lp:
-            lp = int(self.soup.findAll('a', class_='echPagi')[-2].text)
+            try:
+                lp = int(self.soup.findAll('a', class_='echPagi')[-2].text)
+            except:
+                lp=1
         pages.extend([self.page(self.formatPage(i), self) 
                       for i in self.siteList(url)])
         if not cp == lp:
@@ -55,9 +56,6 @@ class bangbros(vidSeries):
     @property
     @memorize
     def title(self):
-        with open('test.html', 'wb') as f:
-            f.write(self.source)
-        print(self.url)
         return self.soup.find('span', class_='mPhed').text.replace(' ', '')
     class page(vidSeries.page):
         
