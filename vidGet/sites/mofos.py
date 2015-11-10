@@ -52,6 +52,8 @@ class mofos(vidSeries):
                 self.username = i.split('=')[-1]
             if 'pass' in i:
                 self.password = i.split('=')[-1]
+            if 'pref' in i:
+                self.pref = i.split('=')[-1]
         
     class page(vidSeries.page):
         @property
@@ -66,6 +68,10 @@ class mofos(vidSeries):
         @memorize
         def videoUrl(self):
             pref = ['720p', 'MPEG4']
+            if hasattr(self.series, 'pref'):
+                for i in pref:                                                  
+                    if self.series.pref in i:                                   
+                        pref.insert(0, pref.pop(pref.index(self.series.pref)))
             url = next(self.series.siteTemplate.format(o['href']) for i in pref 
                        for o in self.soup.find('div', class_='download-frame').findAll('a') 
                        if i in o.text)
