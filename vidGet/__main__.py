@@ -89,9 +89,6 @@ def downEpisode(link, name):
                         total=int(total/1024)) 
             speedMsg = '{speed: >5}KB/s'.format(speed=speed) 
             disPas = [' '.join([tickerMsg, speedMsg, remainMsg]), 2, 1]
-            #disPas = ['\r{cur}Kb/{total}Kb[{:-<20}]{speed: >5}KB/s'.format(('+' *
-            #          int((cur)*21/total)), cur=cur/1024, total=int(total/1024), 
-            #          speed=speed), 2, 1]
             check.tryRun(display, disPas)
             if cur == total:
                 display(*disPas)
@@ -206,7 +203,7 @@ if __name__ == '__main__':
                         metavar='epi', help='Specify a episode number.')
     parser.add_argument('-es', action='store', dest='epiSkip', default=None, type=int,
                         metavar='epiSkip', help='Specify a episode number to skip.')
-    parser.add_argument('-ex', action='store', dest='extras', default=None,
+    parser.add_argument('-x', action='store', dest='extras', default=None,
                         metavar='extras', help='Extra options, site specific.')
     parser.add_argument('-nd', action='store_true', dest='noDir', 
                         help='Save the resulting file in the current directory.')
