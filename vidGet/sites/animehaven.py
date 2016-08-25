@@ -2,7 +2,7 @@ import re
 import requests
 
 from multiprocessing import Pool
-from bs4 import BeautifulSoup, SoupStrainer
+from bs4 import BeautifulSoup
 from ..vidsite import vidSeries
 from ..util import memorize, webpage
 
@@ -56,13 +56,17 @@ class Series(vidSeries):
         @property
         @memorize
         def embedLink(self):
+            count = 0
             while True:
                 try:
+                    if count > 2:
+                        break
                     return self.soup.find(
                             'div',
                             class_='download_feed_link').a['href']
                 except AttributeError:
                     self.soup = bs4(self.source)
+                    count += 1
 
         @property
         @memorize
@@ -78,14 +82,17 @@ class Series(vidSeries):
             except:
 
                 urlTemp = 'http://{}/{}/v.mp4'
-                embed = webpage(self.embedLink)
+                embed = webpage()
+                if not self.embedLink:
+                    return
+                embed.url = self.embedLink
                 group_full = embed.soup.find('div', class_='left')
                 group = group_full.parent.script.text.split('|')
                 firstHit = re.search("img src=\"http://([^/]*)/",
                                      embed.source).group(1)
                 pot = next(num for qual in pref
                            for num, i in enumerate(group)
-                           if qual in i)
+                           if qual == i)
                 if 'label' in group[pot+1]:
                     pot = pot+2
                 return urlTemp.format(firstHit, group[pot+1])
