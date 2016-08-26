@@ -119,16 +119,15 @@ def main(testIt, cookie=None):
         name=testIt.title,
         num=len(testIt.pages)), 2)
     # Main loop, does the downloading/saving
-    if results.noDir:
-        nameIt = lambda x: '{}_{:0>2}.mp4'.format(testIt.title, x)
-    else:
-        nameIt = lambda x: '/'.join([
-            testIt.title,
-            '{}_{:0>2}.mp4'.format(testIt.title, x)
-        ])
+    name = '{}'
+    if not results.noDir:
+        dir_string = '/'.join([testIt.title, '{}'])
+        name = name.format(dir_string)
+    name_gen = name.format('{}_{}.mp4'.format(testIt.title, '{:03}'))
     if results.epi:
         page = testIt.pages[results.epi-1]
-        name = page.name if hasattr(page, 'name') else nameIt(results.epi)
+        name = name.format(page.name) if hasattr(page, 'name')\
+            else name_gen.format(results.epi)
         downEpisode(page.video, name)
     else:
         pages = testIt.pages[results.startEpi-1:]
@@ -137,27 +136,25 @@ def main(testIt, cookie=None):
                 try:
                     i.video
                 except StopIteration:
-                    print "Missing a video here."
+                    print("Missing a video here.")
         if hasattr(testIt, 'preview'):
             downPreview(testIt.preview, dirIt)
         writeStats(testIt)
         for num, page in enumerate(pages, results.startEpi):
             while True:
                 try:
-                    if not num == results.epiSkip:
-                        try:
-                            if hasattr(page, 'name'):
-                                downEpisode(page.video, '/'.join([testIt.title,
-                                                                  page.name]))
-                            else:
-                                downEpisode(page.video, nameIt(num))
-                            break
-                        except StopIteration:
-                            print "Missing a video here."
-                            break
+                    if num == results.epiSkip:
+                        break
+                    if hasattr(page, 'name'):
+                        out_name = name.format(num)
+                    else:
+                        out_name = name_gen.format(num)
+                    downEpisode(page.video, out_name)
+                    break
                 except AttributeError:
-                    print('Unable to download {}.'.format(nameIt(num)))
-                    raise
+                    print('Unable to download {}.'.format(out_name))
+                except StopIteration:
+                    print "Missing a video here."
                 except (urllib2.httplib.ssl.SSLError,
                         socket.error, socket.timeout):
                     display(' Timeout Error! Cleaning up...\n', 1)
