@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-
-from setuptools import setup, Extension
+from setuptools import setup
 
 VERSION = (0, 1)
 VERSION_STR = ".".join([str(x) for x in VERSION])
@@ -10,8 +9,8 @@ setup(
     name='vidGet',
     version=VERSION_STR,
     description="Video streaming site ripping tool.",
-    license = 'BSD',
-    #long_description=open('README.rst', 'r').read(),
+    license='BSD',
+    # long_description=open('README.rst', 'r').read(),
     author='Christopher Jackson',
     author_email='darkdragn.cj@gmail.com',
     url='https://github.com/darkdragn/vidGet',
@@ -21,9 +20,9 @@ setup(
         'beautifulsoup4',
         'mechanize'
     ],
-    #setup_requires=["nose>=1.0"],
-    #test_suite = "nose.collector",
-    keywords = ['anime', 'cartoons', 'streaming'],
+    # setup_requires=["nose>=1.0"],
+    # test_suite = "nose.collector",
+    keywords=['anime', 'cartoons', 'streaming'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: BSD License',
