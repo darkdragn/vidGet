@@ -18,11 +18,18 @@ else:
     from HTMLParser import HTMLParser as parser
 
 
+useragent = ('User-agent',
+             ''.join(['Mozilla/5.0 (X11; U; Linux i686;',
+                      'en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9',
+                      ' Firefox/3.0.1'])
+             )
+
+
 def display(message, level=0, clrLine=False):
     if level <= results.verb:
         if clrLine:
             global l
-            if not 'l' in globals():
+            if 'l' not in globals():
                 try:
                     l = int(subprocess.check_output(['tput', 'cols']))
                 except:
@@ -30,16 +37,16 @@ def display(message, level=0, clrLine=False):
             sys.stdout.write('\r{: ^{i}}'.format('', i=l))
         sys.stdout.write(message)
         sys.stdout.flush()
+
+
 def initMech(site, cookies=None):
     br = mechanize.Browser()
-    
+
     br.set_handle_redirect(True)
     br.set_handle_referer(True)
     br.set_handle_robots(False)
     br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
-    br.addheaders = [('User-agent', ''.join(['Mozilla/5.0 (X11; U; Linux i686;',
-                      'en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 ',
-                      'Firefox/3.0.1']))]
+    br.addheaders = [useragent]
     if cookies:
         cj = cookielib.MozillaCookieJar(filename=cookies)
         cj.load(ignore_expires=True)
@@ -53,9 +60,10 @@ def initMech(site, cookies=None):
         pass
     return br
 
-# :SEE: http://wiki.python.org/moin/PythonDecoratorLibrary/#Alternate_memoize_as_nested_functions
+
 def memorize(obj):
     cache = obj.cache = {}
+
     @functools.wraps(obj)
     def memoizer(*args, **kwargs):
         key = str(args) + str(kwargs)
@@ -63,6 +71,8 @@ def memorize(obj):
             cache[key] = obj(*args, **kwargs)
         return cache[key]
     return memoizer
+
+
 def openUrl(req):
     try:
         return urllib2.urlopen(req, timeout=20.0)
@@ -71,31 +81,42 @@ def openUrl(req):
             display('File already complete!\n', 1)
         else:
             raise
+
+
 def runRepl(startPnt):
-    repl = { '%3A': ':', '%2F': '/', '%3F': '?', '%3D': '=', '%26': '&', '%2C': ','}
+    repl = {'%3A': ':', '%2F': '/', '%3F': '?', '%3D': '=', '%26': '&',
+            '%2C': ','}
     for i in repl.items():
         startPnt = startPnt.replace(*i)
     return startPnt
+
+
 def sigIntHandler(signal, frame):
     # Catch all the CTRL+C
-    sys.stdout.write( '\nSigInt Caught, Terminating...\n')
+    sys.stdout.write('\nSigInt Caught, Terminating...\n')
     sys.exit(0)
+
+
 def unescape(in_data):
     repl = {'%3F': '?', '%26': '&', '%3D': '=', '%2F': '/', '%3A': ':'}
     for i in repl.items():
         in_data = in_data.replace(*i)
     return parser().unescape(in_data)
 
+
 class timing():
     def __init__(self):
         self.updateTime()
+
     def tryRun(self, toRun, runOpts, gap=2):
         current = time.time()
         if (current - self.lastRun) > gap:
             self.updateTime()
             toRun(*runOpts)
+
     def updateTime(self):
         self.lastRun = time.time()
+
 
 class timeIt():
     def __init__(self, name, current):
@@ -103,6 +124,7 @@ class timeIt():
         self.oldSize = current
         self.oldTime = int(time.time())
         self.spRange = [0]
+
     def speed(self, current):
         timeCheck = int(time.time())-self.oldTime
         if timeCheck > 2:
@@ -110,6 +132,7 @@ class timeIt():
             self.spRange.append(((current-self.oldSize)/timeCheck)/1024)
             self.oldSize = current
         return self.rangeIt()
+
     def rangeIt(self):
         avg = 0
         if len(self.spRange) < 5:
@@ -121,6 +144,7 @@ class timeIt():
         for i in rangeTo:
             avg += i
         return avg/divisor
+
     @staticmethod
     def adj(speed):
         if speed > (100*1024):
@@ -129,13 +153,15 @@ class timeIt():
             return (20*1024)
         else:
             return 1024
-            
+
+
 class webpage():
     def __init__(self, url=None, br=None):
         if url:
             self.url = url
         if br:
             self.br = br
+
     @property
     @memorize
     def soup(self):
@@ -143,6 +169,7 @@ class webpage():
             so = strain(self.strainOnly)
             return bs4(self.source, 'html.parser', parse_only=so)
         return bs4(self.source, 'html.parser')
+
     @property
     @memorize
     def source(self):
@@ -151,18 +178,17 @@ class webpage():
                 return str(self.urlObj.read())
             except httplib.IncompleteRead:
                 pass
+
     @property
     @memorize
     def url(self):
         return self.seriesTemplate.format(self.name)
-    @property   
+
+    @property
     def urlObj(self):
         if hasattr(self, 'br'):
             return self.br.open(self.url)
         else:
             req = urllib2.build_opener()
-            req.addheaders = [('User-agent', ''.join(['Mozilla/5.0 (X11; U; Linux i686;',
-                               'en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 ',
-                               'Firefox/3.0.1']))]
+            req.addheaders = [useragent]
             return req.open(self.url)
-    
