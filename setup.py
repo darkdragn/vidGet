@@ -15,7 +15,7 @@ setup(
     author_email='darkdragn.cj@gmail.com',
     url='https://github.com/darkdragn/vidGet',
     packages=['vidGet', 'vidGet.sites'],
-    scripts=['vidGetCli'],
+    scripts=['vidGetCli.py'],
     install_requires=[
         'beautifulsoup4',
         'mechanize'
