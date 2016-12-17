@@ -11,8 +11,8 @@ class hentaihaven(vidSeries):
     
     @property
     def pages(self):
-        return [self.page(i.a['href']) for i in self.soup.findAll('h3') 
-                                       if not 'The Blacklist' == i.text]
+        return [self.page(i.a['href']) for i in self.soup('div',
+            class_='brick-content')]
         
     class page(vidSeries.page):
         @property

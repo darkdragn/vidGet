@@ -1,19 +1,23 @@
 import re
-try:
-    from vidGet.vidsite import vidSeries
-except ImportError:
-    from vidsite import vidSeries
 
-class watchcartoononline(vidSeries):
+from ..vidsite import vidSeries
+from ..util import memorize, webpage
+
+tags  = ['hc', 'hentaicraving']
+
+class Series(vidSeries):
     siteTemplate   = 'http://www.hentai2w.com{}'
-    seriesTemplate = siteTemplate.format('/anime/{}')
-    tags  = ['h2w', 'hentai2w']
-    
+    seriesTemplate = siteTemplate.format('/watch/{}')
+
     @property
+    @memorize
     def pages(self):
-        return [self.page(i.a['href'], self) for i in self.soup.find('div', 
-                              class_='anime_info_episodes').findAll('li')[::-1]]
-        
+        return [self.page(i['href'],self) for i in test.soup.main.h3('a')[1:]]
+
+    @property
+    def title(self):
+        return self.soup.main.h3.a.text.strip().replace(' ', '_')
+
     class page(vidSeries.page):
         @property
         def name(self):
