@@ -3,31 +3,43 @@ import re
 from ..vidsite import vidSeries
 from ..util import memorize, webpage
 
-tags  = ['hc', 'hentaicraving']
+tags = ['h2w', 'hentai2w']
+
 
 class Series(vidSeries):
-    siteTemplate   = 'http://www.hentai2w.com{}'
+    siteTemplate = 'http://www.hentai2w.com{}'
     seriesTemplate = siteTemplate.format('/watch/{}')
 
     @property
     @memorize
     def pages(self):
-        return [self.page(i['href'],self) for i in test.soup.main.h3('a')[1:]]
+        return [self.page(i['href'], self) for i in self.soup('div',
+                class_='block-content remove-padding bg-white')[0]('a')]
+
+    def runExtras(self):
+        url_search = 'http://hentai2w.com/search?search={}'
+        search = webpage(url_search.format(self.name))
+        sel = search.soup.select('div.block-content.row')[0]('a')
+        print('Please select from the following:')
+        for n, i in enumerate(sel):
+            print("{}: {}".format(n, i['data-title'].encode('utf-8')))
+        selection = input()
+        self.name = sel[selection]['href'].split('/')[-1]
+        # sys.exit()
 
     @property
     def title(self):
-        return self.soup.main.h3.a.text.strip().replace(' ', '_')
+        hold = self.soup.main.h3.a.text
+        return hold.strip().replace(' ', '_').replace(':', '')
 
     class page(vidSeries.page):
         @property
-        def name(self):
-            return ''.join([self.episode.split('/')[-1], '.mp4'])
-        @property
         def url(self):
             return self.episode
+
         @property
         def video(self):
-            pref = ['720p', '360p']
-            return next(o['value'] for i in pref 
-                        for o in self.soup.findAll('option') 
-                        if i in o.text)
+            base_url = 'http://{}/video/{}/{}?st={}&e={}'
+            hold = re.search('file: *\'(.*)\',', self.source).group(1)
+            s = hold.split('/')
+            return base_url.format(s[2], s[6], s[-1], s[4], s[5])
