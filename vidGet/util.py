@@ -171,11 +171,11 @@ class webpage():
         return bs4(self.source, 'html.parser')
 
     @property
-    @memorize
     def source(self):
         while True:
             try:
-                return str(self.urlObj.read())
+                return self.urlObj.content
+                # return str(self.urlObj.read())
             except httplib.IncompleteRead:
                 pass
 
@@ -189,6 +189,7 @@ class webpage():
         if hasattr(self, 'br'):
             return self.br.open(self.url)
         else:
-            req = urllib2.build_opener()
-            req.addheaders = [useragent]
-            return req.open(self.url)
+            return requests.get(self.url)
+            #req = urllib2.build_opener()
+            #req.addheaders = [useragent]
+            #return req.open(self.url)

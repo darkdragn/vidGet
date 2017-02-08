@@ -12,7 +12,7 @@ class vidSeries(webpage):
         if extras:
             self.extras = extras.split(',')
             self.runExtras()
-        self.br = initMech(self.siteTemplate.format(''), cookie)
+        #self.br = initMech(self.siteTemplate.format(''), cookie)
 
     @property
     @memorize

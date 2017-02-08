@@ -149,12 +149,16 @@ def main(testIt, cookie=None):
                         out_name = name.format(num)
                     else:
                         out_name = name_gen.format(num)
-                    downEpisode(page.video, out_name)
+                    downEpisode(page.video.replace(' ', '%20'), out_name)
                     break
                 except AttributeError:
                     print('Unable to download {}.'.format(out_name))
                 except StopIteration:
                     print "Missing a video here."
+                except urllib2.HTTPError as e:
+                    display('HTTP error. Please check the url:\n', 1)
+                    display(page.video)
+                    break
                 except (urllib2.httplib.ssl.SSLError,
                         socket.error, socket.timeout):
                     display(' Timeout Error! Cleaning up...\n', 1)
