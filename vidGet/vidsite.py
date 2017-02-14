@@ -30,7 +30,8 @@ class vidSeries(webpage):
             self.episode = episode
             self.series = series
             if series:
-                self.br = series.br
+                if hasattr(series, 'br'):
+                    self.br = series.br
 
         @property
         @memorize
