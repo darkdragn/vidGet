@@ -59,7 +59,8 @@ class mofos(vidSeries):
         @property
         @memorize
         def name(self):
-            return self.videoUrl.info().get('content-disposition').split('=')[-1]
+            base = self.videoUrl.info().get('content-disposition')
+            return base.split('=')[-1].split(';')[-1]
         @property
         @memorize
         def video(self):
@@ -69,10 +70,11 @@ class mofos(vidSeries):
         def videoUrl(self):
             pref = ['720p', 'MPEG4']
             if hasattr(self.series, 'pref'):
-                for i in pref:                                                  
-                    if self.series.pref in i:                                   
+                for i in pref:
+                    if self.series.pref in i:
                         pref.insert(0, pref.pop(pref.index(self.series.pref)))
             url = next(self.series.siteTemplate.format(o['href']) for i in pref 
-                       for o in self.soup.find('div', class_='download-frame').findAll('a') 
+                       # for o in self.soup.find('div', class_='download-frame').findAll('a') 
+                       for o in self.soup('a')
                        if i in o.text)
             return self.series.br.open(url)
