@@ -10,7 +10,7 @@ tags = ['ah', 'animehaven']
 class Series(vidSeries):
     siteTemplate = 'http://animehaven.org/{}'
     seriesTemplate = siteTemplate
-    matchIt = re.compile('Episodes.*')
+    # matchIt = re.compile('Episodes.*')
 
     def formatPage(self, in_val):
         return in_val
@@ -18,11 +18,10 @@ class Series(vidSeries):
     def pageList(self):
         list_args = {'name': 'select', 'id': 'episodes_list_selectbox'}
         try:
-            initial_url = self.soup.find('a', text=self.matchIt)['href']
+            initial_url = self.soup.find('a', text='English Dub')['href']
             base = 'http://animehaven.to/dubbed/'
         except:
-            temp = self.seriesTemplate.format('episodes/subbed')
-            initial_url = self.listPages('/'.join([temp, self.name]))
+            initial_url = self.soup.find('a', text='English Sub')['href']
             base = 'http://animehaven.to/subbed/'
         initial = webpage(initial_url)
         first = webpage(initial.soup.findAll('h2')[0].a['href'])
@@ -32,9 +31,9 @@ class Series(vidSeries):
 
     def runExtras(self):
         for i in self.extras:
-            if 'dub' in i:
-                self.matchIt = re.compile('English.*Dub.*')
-            elif 'pref' in i:
+            # if 'dub' in i:
+                # self.matchIt = re.compile('English.*Dub.*')
+            if 'pref' in i:
                 self.pref = i.split('=')[-1]
 
     class page(vidSeries.page):
@@ -76,6 +75,9 @@ class Series(vidSeries):
                 group = group_full.parent.script.text.split('|')
                 firstHit = re.search("img src=\"http://([^/]*)/",
                                      embed.source).group(1)
+                print firstHit
+                print group
+                print embed.url
                 pot = next(num for qual in pref
                            for num, i in enumerate(group)
                            if qual == i)

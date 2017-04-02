@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 from vidGet import sites
 from vidGet.util import timeIt, timing
 import argparse
