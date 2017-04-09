@@ -32,9 +32,28 @@ class Series(vidSeries):
 
     class page(vidSeries.page):
         @property
+        @memorize
+        def embed(self):
+            url = next(i['src'] for i in self.soup('iframe')
+                       if 'tiwi' in i['src'])
+            return webpage(url)
+
+        @property
         def video(self):
-            pref  = ['720p', '360p']
-            links = self.soup.find('div', class_='download_feed_link')
-            return next(o['href'] for i in pref 
-                        for o in links.findAll('a') 
-                        if i in o.span.text)
+            try:
+                vid = self.embed.soup('video')[0].source['src']
+                return vid.replace('mpd', 'mp4')
+            except:
+                base = 'http://{}/{}/v.mp4'
+                # ip = '.'.join(re.search('file([^w]*)window',
+                    # self.embed.source).group(1).strip('|').split('|')[::-1])
+                ip = self.embed.soup.find(id='vplayer').img['src'].split('/')[2]
+                vid_opts = self.embed.soup('script')[-2].text.split('|')
+                vid_str = next(vid_opts[num+1] for num, i in
+                        enumerate(vid_opts) if '720' == i)
+                return base.format(ip, vid_str)
+            # pref  = ['720p', '360p']
+            # links = self.soup.find('div', class_='download_feed_link')
+            # return next(o['href'] for i in pref 
+                        # for o in links.findAll('a') 
+                        # if i in o.span.text)
