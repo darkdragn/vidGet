@@ -112,8 +112,7 @@ def main(testIt, cookie=None):
     # Test to see if we need to make the folder.
     if not os.path.exists(dirIt) and not results.noDir:
         os.makedirs(dirIt)
-    # Write a link name, and {type} stats
-    writeStats(testIt)
+        writeStats(testIt)
     display('{type} {name} contains {num} episodes.\n'.format(
         type=testIt.type_,
         name=testIt.title,
@@ -139,7 +138,6 @@ def main(testIt, cookie=None):
                     print("Missing a video here.")
         if hasattr(testIt, 'preview'):
             downPreview(testIt.preview, dirIt)
-        writeStats(testIt)
         for num, page in enumerate(pages, results.startEpi):
             while True:
                 try:
@@ -149,8 +147,13 @@ def main(testIt, cookie=None):
                         out_name = name.format(num)
                     else:
                         out_name = name_gen.format(num)
-                    downEpisode(page.video.replace(' ', '%20'), out_name)
-                    break
+                    link = page.video
+                    if type(link) is tuple:
+                        link[0](link[1], out_name)
+                        break
+                    else:
+                        downEpisode(link.replace(' ', '%20'), out_name)
+                        break
                 except AttributeError:
                     print('Unable to download {}.'.format(out_name))
                 except StopIteration:

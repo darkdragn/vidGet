@@ -41,6 +41,14 @@ class Series(vidSeries):
         @property
         def video(self):
             try:
+                pref  = ['720p', '360p']
+                links = self.soup.find('div', class_='download_feed_link')
+                return next(o['href'] for i in pref 
+                            for o in links.findAll('a') 
+                            if i in o.span.text)
+            except:
+                pass
+            try:
                 vid = self.embed.soup('video')[0].source['src']
                 return vid.replace('mpd', 'mp4')
             except:
@@ -52,8 +60,3 @@ class Series(vidSeries):
                 vid_str = next(vid_opts[num+1] for num, i in
                         enumerate(vid_opts) if '720' == i)
                 return base.format(ip, vid_str)
-            # pref  = ['720p', '360p']
-            # links = self.soup.find('div', class_='download_feed_link')
-            # return next(o['href'] for i in pref 
-                        # for o in links.findAll('a') 
-                        # if i in o.span.text)
