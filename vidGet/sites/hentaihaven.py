@@ -13,7 +13,7 @@ class Series(vidSeries):
     @property
     def pages(self):
         return [self.page(i.a['href']) for i in self.soup('div',
-            class_='brick-content')]
+            class_='brick-media')]
 
     def runExtras(self):
         url_search, t = 'http://hentaihaven.org/search/{}', {}

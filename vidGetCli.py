@@ -144,7 +144,7 @@ def main(testIt, cookie=None):
                     if num == results.epiSkip:
                         break
                     if hasattr(page, 'name'):
-                        out_name = name.format(num)
+                        out_name = page.name.format(num)
                     else:
                         out_name = name_gen.format(num)
                     link = page.video

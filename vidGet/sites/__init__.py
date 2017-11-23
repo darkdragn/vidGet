@@ -1,4 +1,4 @@
 __all__ = ['animehaven', 'hanime', 'hentai2w', 'hentailust', 'hentaihaven',
-           'streamhentaimovies']
+           'javhihi', 'streamhentaimovies']
 
 from . import *
