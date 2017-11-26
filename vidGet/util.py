@@ -174,6 +174,9 @@ class webpage():
     def source(self):
         while True:
             try:
+                if hasattr(self, 'br'):
+                    if 'phantom' in self.br.__str__():
+                        return self.br.page_source
                 return self.urlObj.content
                 # return str(self.urlObj.read())
             except httplib.IncompleteRead:
@@ -187,6 +190,8 @@ class webpage():
     @property
     def urlObj(self):
         if hasattr(self, 'br'):
+            if 'phantom' in self.br.__str__():
+                return self.br.get(self.url)
             return self.br.open(self.url)
         else:
             return requests.get(self.url)
